@@ -1,6 +1,6 @@
 (setf sb-impl::*default-external-format* :UTF-8)
 ;;(declaim (optimize (debug 3)))
-(ql:quickload '(drakma plump clss clack clack-v1-compat ningle cl-json))
+(ql:quickload '(drakma plump clss clack clack-v1-compat ningle cl-json clack-errors))
 
 (defpackage cl-spider
   (:use :cl :drakma :plump :clss :clack :ningle :json))
@@ -53,8 +53,6 @@
 
 (defvar *app* (make-instance 'ningle:<app>))
 
-(defvar fucker nil)
-
 (setf (route *app* "/")
       #'(lambda (params)
           (setf (lack.response:response-headers *response*) '(:content-type "text/html"))
@@ -63,13 +61,23 @@
 (defmacro set-content-type (content-type)
   `(setf (lack.response:response-headers *response*) '(:content-type ,content-type)))
 
-(defmacro get-param-value(key params)
-  `(cdr (assoc ,key ,params :test #'string=)))
+(defmacro get-param-value(key)
+  `(cdr (assoc ,key params :test #'string=)))
+
+(defun test-doge (uri selector attr)
+  (get-what-i-want uri selector :attr attr))
 
 (setf (route *app* "/doge" :method :POST)
       #'(lambda (params)
           (set-content-type "application/json")
-          (format nil "~A" (get-param-value "name" params))))
+          (let* ((action (get-param-value "action"))
+                 (uri (get-param-value "uri"))
+                 (selector (get-param-value "selector"))
+                 (attr (get-param-value "attr")))
+            (cond
+              ((equal action "test")
+               (encode-json-to-string (test-doge uri selector attr)))
+              ((equal action "fuck") (format nil "~A" (get-param-value "name")))))))
 
 (setf (route *app* "/doge" :method :GET)
       #'(lambda (params)
@@ -81,5 +89,15 @@
           (set-content-type "application/javascript")
           (encode-json-to-string params)))
 
+(defvar *handler*)
 
-(clackup *app* :server :woo)
+(defun start ()
+  (setf *handler*
+        (clack:clackup
+         (funcall clack-errors:*clack-error-middleware*
+                  *app*
+                  :debug t)
+         :port 5000
+         :server :hunchentoot)))
+
+(start)
