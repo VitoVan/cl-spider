@@ -1,9 +1,9 @@
 (setf sb-impl::*default-external-format* :UTF-8)
 ;;(declaim (optimize (debug 3)))
-(ql:quickload '(drakma plump clss clack clack-v1-compat ningle))
+(ql:quickload '(drakma plump clss clack clack-v1-compat ningle cl-json))
 
 (defpackage cl-spider
-  (:use :cl :drakma :plump :clss :clack :ningle))
+  (:use :cl :drakma :plump :clss :clack :ningle :json))
 (in-package :cl-spider)
 
 (defun get-html (uri &key (expected-code 200) (method :get) parameters)
@@ -60,10 +60,26 @@
           (setf (lack.response:response-headers *response*) '(:content-type "text/html"))
           "Welcome to  Such Cute!"))
 
+(defmacro set-content-type (content-type)
+  `(setf (lack.response:response-headers *response*) '(:content-type ,content-type)))
+
+(defmacro get-param-value(key params)
+  `(cdr (assoc ,key ,params :test #'string=)))
+
 (setf (route *app* "/doge" :method :POST)
       #'(lambda (params)
-          (setf (lack.response:response-headers *response*) '(:content-type "application/json"))
-          (format nil "Hello fuck, ~A" params)))
+          (set-content-type "application/json")
+          (format nil "~A" (get-param-value "name" params))))
+
+(setf (route *app* "/doge" :method :GET)
+      #'(lambda (params)
+          (set-content-type "application/json")
+          (encode-json-to-string params)))
+
+(setf (route *app* "/dogep" :method :GET)
+      #'(lambda (params)
+          (set-content-type "application/javascript")
+          (encode-json-to-string params)))
 
 
 (clackup *app* :server :woo)
