@@ -1,12 +1,10 @@
 (setf sb-impl::*default-external-format* :UTF-8)
 ;;(declaim (optimize (debug 3)))
-(ql:quickload '(drakma plump clss))
+(ql:quickload '(drakma plump clss clack clack-v1-compat ningle))
 
 (defpackage cl-spider
-  (:use :cl :drakma :plump :clss))
+  (:use :cl :drakma :plump :clss :clack :ningle))
 (in-package :cl-spider)
-
-(defvar url-dicts "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 (defun get-html (uri &key (expected-code 200) (method :get) parameters)
   (let* ((response (multiple-value-list (http-request uri :method method :parameters parameters)))
@@ -28,13 +26,6 @@
 (defun get-attribute(attr node)
   (attribute node attr))
 
-;;This is not ok, people may want 0 - 9999, it's not regex thing
-(defun gen-address(uri-prefix regex)
-  (mapcar
-   #'(lambda (letter)
-       (concatenate 'string uri-prefix letter))
-   (cl-ppcre:all-matches-as-strings regex url-dicts)))
-
 (defun get-what-I-want (uri selector &key attr)
   (map 'list
        #'(lambda (node)
@@ -43,4 +34,36 @@
                (get-text node)))
        (get-nodes selector (get-dom (get-html uri)))))
 
-(get-what-i-want "http://sh.58.com/xiaoqu/xqlist_A_1/" "ul>li>a")
+;;(get-what-i-want "http://sh.58.com/xiaoqu/xqlist_A_1/" "ul>li>a")
+
+(defun gen-number-uri(uri-prefix &key (min 1) (max 10))
+  (do ((index min (+ 1 index))
+       (uri-list))
+      ((> index max) uri-list)
+    (push (concatenate 'string uri-prefix (write-to-string index)) uri-list)))
+
+(defun get-multiple-what-I-want (uri-list selector &key attr)
+  (let* ((result))
+    (dolist (uri uri-list)
+      (setf result (append (get-what-I-want uri selector :attr attr) result)))
+    result))
+
+;;(get-multiple-what-i-want
+;;  '("http://sh.58.com/xiaoqu/xqlist_A_1/" "http://sh.58.com/xiaoqu/xqlist_B_1/") "ul>li>a" :attr "href")
+
+(defvar *app* (make-instance 'ningle:<app>))
+
+(defvar fucker nil)
+
+(setf (route *app* "/")
+      #'(lambda (params)
+          (setf (lack.response:response-headers *response*) '(:content-type "text/html"))
+          "Welcome to  Such Cute!"))
+
+(setf (route *app* "/doge" :method :POST)
+      #'(lambda (params)
+          (setf (lack.response:response-headers *response*) '(:content-type "application/json"))
+          (format nil "Hello fuck, ~A" params)))
+
+
+(clackup *app* :server :woo)
