@@ -1,13 +1,13 @@
 (setf sb-impl::*default-external-format* :UTF-8)
 ;;(declaim (optimize (debug 3)))
-(ql:quickload '(drakma plump clss clack clack-v1-compat cl-json))
+(ql:quickload '(drakma plump clss cl-json hunchentoot))
 
 (defpackage cl-spider
-  (:use :cl :drakma :plump :clss :clack :json))
+  (:use :cl :plump :clss :json :hunchentoot))
 (in-package :cl-spider)
 
 (defun get-html (uri &key (expected-code 200) (method :get) parameters)
-  (let* ((response (multiple-value-list (http-request uri :method method :parameters parameters)))
+  (let* ((response (multiple-value-list (drakma:http-request uri :method method :parameters parameters)))
          (html (car response))
          (code (nth 1 response)))
     (if (= code expected-code)
@@ -48,26 +48,34 @@
 ;;(get-multiple-what-i-want
 ;;  '("http://sh.58.com/xiaoqu/xqlist_A_1/" "http://sh.58.com/xiaoqu/xqlist_B_1/") "ul>li>a" :attr "href")
 
-(defvar *env* nil)
+;; Start Hunchentoot
+(setf *show-lisp-errors-p* t)
+(setf *acceptor* (make-instance 'hunchentoot:easy-acceptor
+                                :port 5000
+                                :access-log-destination "log/access.log"
+                                :message-log-destination "log/message.log"
+                                :error-template-directory  "www/errors/"
+                                :document-root "www/"))
+(start *acceptor*)
 
-(defun app (env)
-  (setf *env* env)
-  (cond
-    ((string= (getf env :path-info) "/")
-     '(200 (:content-type "text/html") ("Hello fucker")))
-    ((string= (getf env :path-info) "/doge")
-     `(200 (:content-type "application/json" :fucker "hey")
-           (,(format nil "~A" env))))
-    (t
-     '(404 (:content-type "text/plain") ("Not found")))))
+(defun controller-doge-wow()
+  (setf (hunchentoot:content-type*) "application/json")
+  (format nil "~A" *request*))
 
-(defvar *handler*)
+(defun controller-doge-new()
+  (setf (hunchentoot:content-type*) "application/json")
+  (format nil "~A" *request*))
 
-(defun start-server ()
-  (setf *handler*
-        (clackup
-         #'app
-         :server :woo)))
+(defun controller-doge-test()
+  (setf (hunchentoot:content-type*) "application/json")
+  (encode-json-to-string
+   (get-what-i-want
+    (parameter "uri")
+    (parameter "selector")
+    :attr (parameter "attr"))))
 
-(defun stop-server ()
-  (stop *handler*))
+(setf *dispatch-table*
+      (list
+       (create-regex-dispatcher "^/doge/wow$" 'controller-doge-wow)
+       (create-regex-dispatcher "^/doge/new$" 'controller-doge-new)
+       (create-regex-dispatcher "^/doge/test$" 'controller-doge-test)))
