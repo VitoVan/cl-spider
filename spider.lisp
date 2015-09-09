@@ -91,21 +91,27 @@
   (format nil "~A" *request*))
 
 (defun controller-doge-test()
-  (if (null (parameter "selector"))
-      (progn
-        (setf (hunchentoot:content-type*) "text/plain")
-        (get-what-i-want (parameter "uri")))
-      (progn
-        (setf (hunchentoot:content-type*) "application/json")
-        (encode-json-to-string
-         (get-what-i-want
-          (parameter "uri")
-          :selector (parameter "selector")
-          :attrs (and (parameter "attrs") (decode-json-from-string (parameter "attrs"))))))))
+  (let* ((result (get-what-i-want
+                  (parameter "uri")
+                  :selector (parameter "selector")
+                  :attrs (and (parameter "attrs") (decode-json-from-string (parameter "attrs"))))))
+    (cond
+      ((null (parameter "selector"))
+       (progn
+         (setf (hunchentoot:content-type*) "text/plain")
+         result))
+      ((parameter "callback")
+       (progn
+         (setf (hunchentoot:content-type*) "application/javascript")
+         (concatenate 'string (parameter "callback") "(" (encode-json-to-string result) ");")))
+      (t (progn
+           (setf (hunchentoot:content-type*) "application/json")
+           (encode-json-to-string result))))))
 
 ;;http://cl-spider.vito/doge/test?uri=http://v2ex.com/
 ;;http://cl-spider.vito/doge/test?uri=http://v2ex.com/&selector=span.item_title
 ;;http://cl-spider.vito/doge/test?uri=http://v2ex.com/&selector=span.item_title>a&attrs=["href","text"]
+;;http://cl-spider.vito/doge/test?uri=http://v2ex.com/&selector=span.item_title>a&attrs=["href","text"]&callback=console.log
 
 (setf *dispatch-table*
       (list
