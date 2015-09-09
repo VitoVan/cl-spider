@@ -21,9 +21,9 @@
 (defun get-text(node)
   (string-trim '(#\Space #\Tab #\Newline) (text node)))
 
-(defun get-what-I-want (uri &key selector attrs)
+(defun get-what-I-want (uri &key selector attrs html)
   (if (null selector)
-      (get-html uri)
+      (or html (get-html uri))
       (map 'list
            #'(lambda (node)
                (if attrs
@@ -38,4 +38,4 @@
                          (car results)
                          results))
                    (get-text node)))
-           (get-nodes selector (get-dom (get-html uri))))))
+           (get-nodes selector (get-dom (or html (get-html uri)))))))
