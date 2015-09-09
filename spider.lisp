@@ -23,30 +23,26 @@
 (defun get-text(node)
   (string-trim '(#\Space #\Tab #\Newline) (text node)))
 
-(defun get-what-I-want (uri selector &key attr)
+(defun get-what-I-want (uri selector &key attrs)
   (map 'list
        #'(lambda (node)
-           (if attr
-               (attribute node attr)
+           (if attrs
+               (let* ((results))
+                 (dolist (attr attrs)
+                   (push
+                    (cons attr
+                          (if (equal attr "text")
+                              (get-text node)
+                              (attribute node attr))) results))
+                 (if (= 1 (length attrs))
+                     (car results)
+                     results))
                (get-text node)))
        (get-nodes selector (get-dom (get-html uri)))))
 
 ;;(get-what-i-want "http://sh.58.com/xiaoqu/xqlist_A_1/" "ul>li>a")
 
-(defun gen-number-uri(uri-prefix &key (min 1) (max 10))
-  (do ((index min (+ 1 index))
-       (uri-list))
-      ((> index max) uri-list)
-    (push (concatenate 'string uri-prefix (write-to-string index)) uri-list)))
-
-(defun get-multiple-what-I-want (uri-list selector &key attr)
-  (let* ((result))
-    (dolist (uri uri-list)
-      (setf result (append (get-what-I-want uri selector :attr attr) result)))
-    result))
-
-;;(get-multiple-what-i-want
-;;  '("http://sh.58.com/xiaoqu/xqlist_A_1/" "http://sh.58.com/xiaoqu/xqlist_B_1/") "ul>li>a" :attr "href")
+;;(get-what-i-want "http://sh.58.com/xiaoqu/xqlist_A_1/" "ul>li>a" :attrs '("href" "text"))
 
 ;; Start Hunchentoot
 (setf *show-lisp-errors-p* t)
@@ -56,7 +52,9 @@
                                 :message-log-destination "log/message.log"
                                 :error-template-directory  "www/errors/"
                                 :document-root "www/"))
-(start *acceptor*)
+
+(defun start-server ()
+  (start *acceptor*))
 
 (defun controller-doge-wow()
   (setf (hunchentoot:content-type*) "application/json")
@@ -72,10 +70,12 @@
    (get-what-i-want
     (parameter "uri")
     (parameter "selector")
-    :attr (parameter "attr"))))
+    :attrs (decode-json-from-string (parameter "attrs")))))
 
 (setf *dispatch-table*
       (list
        (create-regex-dispatcher "^/doge/wow$" 'controller-doge-wow)
        (create-regex-dispatcher "^/doge/new$" 'controller-doge-new)
        (create-regex-dispatcher "^/doge/test$" 'controller-doge-test)))
+
+(start-server)
