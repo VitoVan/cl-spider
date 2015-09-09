@@ -1,5 +1,5 @@
-(in-package :common-lisp)
+(in-package #:cl-user)
 
-(defpackage :cl-spider
-  (:use :cl :drakma :plump :clss)
+(defpackage #:cl-spider
+  (:use #:common-lisp #:drakma #:plump #:clss)
   (:export #:get-what-I-want))
