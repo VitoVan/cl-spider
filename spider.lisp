@@ -1,18 +1,39 @@
 (setf sb-impl::*default-external-format* :UTF-8)
 ;;(declaim (optimize (debug 3)))
-(ql:quickload '(drakma plump clss cl-json hunchentoot))
+(ql:quickload '(drakma plump clss cl-json hunchentoot cl-mongo))
 
 (defpackage cl-spider
-  (:use :cl :plump :clss :json :hunchentoot))
+  (:use :cl :plump :clss :json :hunchentoot :cl-mongo))
 (in-package :cl-spider)
 
+;;init db
+(db.use "cl-spider")
+
+(defun cache-uri(uri html)
+  (db.update
+   "cache"
+   ($ "uri" uri)
+   (kv ($set "time" (get-universal-time)) ($set "html" html))
+   :upsert t :multi t))
+
+(defun get-cache(uri)
+  (get-element "html"
+               (car (docs
+                     (db.find "cache"
+                              (kv
+                               (kv "uri" uri)
+                               ($>= "time" (- (get-universal-time) (* 60 2)))))))))
+
+
 (defun get-html (uri &key (expected-code 200) (method :get) parameters)
-  (let* ((response (multiple-value-list (drakma:http-request uri :method method :parameters parameters)))
-         (html (car response))
-         (code (nth 1 response)))
-    (if (= code expected-code)
-        html
-        code)))
+  (or
+   (get-cache uri)
+   (let* ((response (multiple-value-list (drakma:http-request uri :method method :parameters parameters)))
+          (html (car response))
+          (code (nth 1 response)))
+     (if (= code expected-code)
+         (progn (cache-uri uri html) html)
+         code))))
 
 (defun get-dom(html)
   (parse html))
@@ -41,7 +62,6 @@
        (get-nodes selector (get-dom (get-html uri)))))
 
 ;;(get-what-i-want "http://sh.58.com/xiaoqu/xqlist_A_1/" "ul>li>a")
-
 ;;(get-what-i-want "http://sh.58.com/xiaoqu/xqlist_A_1/" "ul>li>a" :attrs '("href" "text"))
 
 ;; Start Hunchentoot
@@ -71,6 +91,8 @@
     (parameter "uri")
     (parameter "selector")
     :attrs (decode-json-from-string (parameter "attrs")))))
+
+;;http://cl-spider.vito/doge/test?uri=http://v2ex.com/&selector=span.item_title>a&attrs=["href","text"]
 
 (setf *dispatch-table*
       (list
