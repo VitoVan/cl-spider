@@ -24,16 +24,19 @@
                                (kv "uri" uri)
                                ($>= "time" (- (get-universal-time) (* 60 2)))))))))
 
-
 (defun get-html (uri &key (expected-code 200) (method :get) parameters)
   (or
    (get-cache uri)
-   (let* ((response (multiple-value-list (drakma:http-request uri :method method :parameters parameters)))
+   (let* ((response (multiple-value-list
+                     (handler-case (drakma:http-request uri :method method :parameters parameters)
+                       (error
+                           (condition)
+                         (format nil "~A" condition)))))
           (html (car response))
           (code (nth 1 response)))
-     (if (= code expected-code)
+     (if (and code (= code expected-code))
          (progn (cache-uri uri html) html)
-         code))))
+         (or code response)))))
 
 (defun get-dom(html)
   (parse html))
@@ -44,25 +47,28 @@
 (defun get-text(node)
   (string-trim '(#\Space #\Tab #\Newline) (text node)))
 
-(defun get-what-I-want (uri selector &key attrs)
-  (map 'list
-       #'(lambda (node)
-           (if attrs
-               (let* ((results))
-                 (dolist (attr attrs)
-                   (push
-                    (cons attr
-                          (if (equal attr "text")
-                              (get-text node)
-                              (attribute node attr))) results))
-                 (if (= 1 (length attrs))
-                     (car results)
-                     results))
-               (get-text node)))
-       (get-nodes selector (get-dom (get-html uri)))))
+(defun get-what-I-want (uri &key selector attrs)
+  (if (null selector)
+      (get-html uri)
+      (map 'list
+           #'(lambda (node)
+               (if attrs
+                   (let* ((results))
+                     (dolist (attr attrs)
+                       (push
+                        (cons attr
+                              (if (equal attr "text")
+                                  (get-text node)
+                                  (attribute node attr))) results))
+                     (if (= 1 (length attrs))
+                         (car results)
+                         results))
+                   (get-text node)))
+           (get-nodes selector (get-dom (get-html uri))))))
 
-;;(get-what-i-want "http://sh.58.com/xiaoqu/xqlist_A_1/" "ul>li>a")
-;;(get-what-i-want "http://sh.58.com/xiaoqu/xqlist_A_1/" "ul>li>a" :attrs '("href" "text"))
+;;(get-what-i-want "http://sh.58.com/xiaoqu/xqlist_A_1/")
+;;(get-what-i-want "http://sh.58.com/xiaoqu/xqlist_A_1/" :selector "ul>li>a")
+;;(get-what-i-want "http://sh.58.com/xiaoqu/xqlist_A_1/" :selector "ul>li>a" :attrs '("href" "text"))
 
 ;; Start Hunchentoot
 (setf *show-lisp-errors-p* t)
@@ -85,13 +91,20 @@
   (format nil "~A" *request*))
 
 (defun controller-doge-test()
-  (setf (hunchentoot:content-type*) "application/json")
-  (encode-json-to-string
-   (get-what-i-want
-    (parameter "uri")
-    (parameter "selector")
-    :attrs (decode-json-from-string (parameter "attrs")))))
+  (if (null (parameter "selector"))
+      (progn
+        (setf (hunchentoot:content-type*) "text/plain")
+        (get-what-i-want (parameter "uri")))
+      (progn
+        (setf (hunchentoot:content-type*) "application/json")
+        (encode-json-to-string
+         (get-what-i-want
+          (parameter "uri")
+          :selector (parameter "selector")
+          :attrs (and (parameter "attrs") (decode-json-from-string (parameter "attrs"))))))))
 
+;;http://cl-spider.vito/doge/test?uri=http://v2ex.com/
+;;http://cl-spider.vito/doge/test?uri=http://v2ex.com/&selector=span.item_title
 ;;http://cl-spider.vito/doge/test?uri=http://v2ex.com/&selector=span.item_title>a&attrs=["href","text"]
 
 (setf *dispatch-table*
