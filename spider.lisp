@@ -34,8 +34,8 @@
                               (if (equal attr "text")
                                   (get-text node)
                                   (attribute node attr))) results))
-                     (serialize results nil))
-                   node))
+                     results)
+                   (serialize node nil)))
            (get-nodes selector (get-dom (or html (get-html uri)))))))
 
 
