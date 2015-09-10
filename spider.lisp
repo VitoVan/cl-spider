@@ -34,8 +34,9 @@
                               (if (equal attr "text")
                                   (get-text node)
                                   (attribute node attr))) results))
-                     (if (= 1 (length attrs))
-                         (car results)
-                         results))
-                   (get-text node)))
+                     (serialize results nil))
+                   node))
            (get-nodes selector (get-dom (or html (get-html uri)))))))
+
+
+;;(decode-json-from-string "[{\"selector\":\"ul>li\",\"attrs\":[\"name\",\"type\"]},{\"selector\":\"div\"}]")
