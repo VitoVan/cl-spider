@@ -63,3 +63,7 @@ desires --- a list contains sub selectors and their attrs
 * Multiple Selector Support
 * POST method Support
 * Cookie & Session Support
+
+## License
+
+GPL v2
