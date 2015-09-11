@@ -3,16 +3,16 @@ A Common Lisp Spider for the Web
 
 ## Installlation
 
-* 1) Install [Quicklisp](http://quicklisp.org/), if not.
+1. Install [Quicklisp](http://quicklisp.org/), if not.
 
-* 2) Configure ASDF:
+2. Configure ASDF:
 
 ```bash
 mkdir -p ~/.config/common-lisp/source-registry.conf.d/
 echo "(:tree (:home \"quicklisp/downloaded-projects/\"))" > ~/.config/common-lisp/source-registry.conf.d/projects.conf
 ```
 
-* 3) Download cl-spider:
+3. Download cl-spider:
 
 ```bash
 mkdir -p ~/quicklisp/downloaded-projects
@@ -20,7 +20,7 @@ cd ~/quicklisp/downloaded-projects
 git clone git@github.com:VitoVan/cl-spider.git
 ```
 
-* 4) Restart your REPL, then:
+4. Restart your REPL, then:
 
 ```Lisp
 (ql:quickload 'cl-spider)
