@@ -21,7 +21,7 @@
 (defun get-text(node)
   (string-trim '(#\Space #\Tab #\Newline) (text node)))
 
-(defun get-what-I-want (uri &key selector attrs html)
+(defun get-data (uri &key selector attrs html)
   (if (null selector)
       (or html (get-html uri))
       (map 'list
@@ -39,10 +39,10 @@
                    (serialize node nil)))
            (get-nodes selector (get-dom (or html (get-html uri)))))))
 
-;;(cl-spider:get-all-i-want "https://news.ycombinator.com/" :selector "tr.athing,tr.athing+tr" :desires '(((:selector . "td.title>a") (:attrs . ("href"))) ((:selector . "td.title>a") (:attrs . ("text"))) ((:selector . "td.subtext>span") (:attrs . ("text"))) ((:selector . "td.subtext>a[href^='user']") (:attrs . ("text")))))
+;;(cl-spider:get-all-i-want "https://news.ycombinator.com/" :selector "tr.athing,tr.athing+tr" :desires '(((:selector . "td.title>a") (:attrs . ("href"))) ((:selector . "td.title>a") (:attrs . ("text"))) ((:selector . "td.subtext>span") (:attrs . ("text"))) ((:selector . "td.subtext>a[href^='user']") (:attrs . ("text as username")))))
 
 
-(defun get-all-I-want (uri &key selector desires)
+(defun get-block-data (uri &key selector desires)
   (let* ((parent-html-list (get-what-I-want uri :selector selector)))
     (mapcar
      #'(lambda (parent-html)
