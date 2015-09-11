@@ -22,22 +22,25 @@
   (string-trim '(#\Space #\Tab #\Newline) (text node)))
 
 (defun get-data (uri &key selector attrs html)
-  (if (null selector)
-      (or html (get-html uri))
-      (map 'list
-           #'(lambda (node)
-               (if attrs
-                   (let* ((results))
-                     (dolist (attr attrs)
-                       (push
-                        (cons (or (and (cl-ppcre:scan " as " attr) (cadr (cl-ppcre:split " as " attr))) attr)
-                              (if (cl-ppcre:scan "^text$|^text as " attr)
-                                  (get-text node)
-                                  (attribute node
-                                             (or (and (cl-ppcre:scan " as " attr) (car (cl-ppcre:split " as " attr))) attr)))) results))
-                     results)
-                   (serialize node nil)))
-           (get-nodes selector (get-dom (or html (get-html uri)))))))
+  (handler-case (if (null selector)
+                    (or html (get-html uri))
+                    (map 'list
+                         #'(lambda (node)
+                             (if attrs
+                                 (let* ((results))
+                                   (dolist (attr attrs)
+                                     (push
+                                      (cons (or (and (cl-ppcre:scan " as " attr) (cadr (cl-ppcre:split " as " attr))) attr)
+                                            (if (cl-ppcre:scan "^text$|^text as " attr)
+                                                (get-text node)
+                                                (attribute node
+                                                           (or (and (cl-ppcre:scan " as " attr) (car (cl-ppcre:split " as " attr))) attr)))) results))
+                                   results)
+                                 (serialize node nil)))
+                         (get-nodes selector (get-dom (or html (get-html uri))))))
+    (error
+        (condition)
+      (format nil "~A" condition))))
 
 ;;(cl-spider:get-data "https://news.ycombinator.com/" :selector "a" :attrs '("href" "text"))
 
