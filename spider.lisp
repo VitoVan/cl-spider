@@ -39,8 +39,7 @@
                    (serialize node nil)))
            (get-nodes selector (get-dom (or html (get-html uri)))))))
 
-;;(cl-spider:get-all-i-want "https://news.ycombinator.com/" :selector "tr.athing,tr.athing+tr" :desires '(((:selector . "td.title>a") (:attrs . ("href"))) ((:selector . "td.title>a") (:attrs . ("text"))) ((:selector . "td.subtext>span") (:attrs . ("text"))) ((:selector . "td.subtext>a[href^='user']") (:attrs . ("text as username")))))
-
+;;(cl-spider:get-data "https://news.ycombinator.com/" :selector "a" :attrs '("href" "text"))
 
 (defun get-block-data (uri &key selector desires)
   (let* ((parent-html-list (get-what-I-want uri :selector selector)))
@@ -50,12 +49,17 @@
            (dolist (desire desires)
              (format t "DESIRES: ~A :::: ~A~%" desires parent-html)
              (setf result (append result
-                                  (car (get-what-I-want nil
+                                  (car (get-data nil
                                                         :selector (cdr (assoc ':selector desire))
                                                         :attrs (cdr (assoc ':attrs desire))
                                                         :html parent-html)))))
            result))
      parent-html-list)))
 
-;;(cl-spider:get-all-i-want "https://news.ycombinator.com/" :selector "td.title" :desires '(((:selector . "a") (:attrs . ("href"))) ((:selector . "a") (:attrs . ("text"))) ((:selector . "span.rank") (:attrs . ("text")))))
+;;(cl-spider:get-block-data "https://news.ycombinator.com/" 
+;;                                   :selector "tr.athing" 
+;;                                   :desires '(((:selector . "span.rank") (:attrs . ("text")))
+;;                                              ((:selector . "td.title>a") (:attrs . ("href" "text")))
+;;                                              ((:selector . "span.sitebit.comhead") (:attrs . ("text")))))
+
 
