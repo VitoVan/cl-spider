@@ -17,7 +17,7 @@ echo "(:tree (:home \"quicklisp/downloaded-projects/\"))" > ~/.config/common-lis
 ```bash
 mkdir -p ~/quicklisp/downloaded-projects
 cd ~/quicklisp/downloaded-projects
-git clone git@github.com:VitoVan/cl-spider.git
+git clone https://github.com/VitoVan/cl-spider.git
 ```
 
 * Restart your REPL, then:
