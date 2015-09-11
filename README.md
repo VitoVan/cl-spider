@@ -25,7 +25,7 @@ git clone git@github.com:VitoVan/cl-spider.git
 ```Lisp
 (ql:quickload 'cl-spider)
 ```
-![](https://avatars1.githubusercontent.com/u/1756956?v=3&s=460)
+![](https://raw.githubusercontent.com/VitoVan/cl-spider/master/screenshots/quickload.png)
 
 ## Function
 
@@ -40,7 +40,7 @@ attrs --- the attrs of the selector
 (cl-spider:get-data "https://news.ycombinator.com/" :selector "a" :attrs '("href" "text"))
 ```
 
-![](https://avatars1.githubusercontent.com/u/1756956?v=3&s=460)
+![](https://raw.githubusercontent.com/VitoVan/cl-spider/master/screenshots/get-data.png)
 
 **cl-spider:get-block-data** uri &key selector desires
 
@@ -56,7 +56,7 @@ desires --- a list contains sub selectors and their attrs
                                               ((:selector . "span.sitebit.comhead") (:attrs . ("text as site")))))
 ```
 
-![](https://avatars1.githubusercontent.com/u/1756956?v=3&s=460)
+![](https://raw.githubusercontent.com/VitoVan/cl-spider/master/screenshots/get-block-data.png)
 
 ## TODO
 
