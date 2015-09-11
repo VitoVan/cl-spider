@@ -42,24 +42,21 @@
 ;;(cl-spider:get-data "https://news.ycombinator.com/" :selector "a" :attrs '("href" "text"))
 
 (defun get-block-data (uri &key selector desires)
-  (let* ((parent-html-list (get-what-I-want uri :selector selector)))
+  (let* ((parent-html-list (get-data uri :selector selector)))
     (mapcar
      #'(lambda (parent-html)
          (let* ((result))
            (dolist (desire desires)
-             (format t "DESIRES: ~A :::: ~A~%" desires parent-html)
              (setf result (append result
                                   (car (get-data nil
-                                                        :selector (cdr (assoc ':selector desire))
-                                                        :attrs (cdr (assoc ':attrs desire))
-                                                        :html parent-html)))))
+                                                 :selector (cdr (assoc ':selector desire))
+                                                 :attrs (cdr (assoc ':attrs desire))
+                                                 :html parent-html)))))
            result))
      parent-html-list)))
 
 ;;(cl-spider:get-block-data "https://news.ycombinator.com/" 
 ;;                                   :selector "tr.athing" 
-;;                                   :desires '(((:selector . "span.rank") (:attrs . ("text")))
-;;                                              ((:selector . "td.title>a") (:attrs . ("href" "text")))
-;;                                              ((:selector . "span.sitebit.comhead") (:attrs . ("text")))))
-
-
+;;                                   :desires '(((:selector . "span.rank") (:attrs . ("text as rank")))
+;;                                              ((:selector . "td.title>a") (:attrs . ("href as uri" "text as title")))
+;;                                              ((:selector . "span.sitebit.comhead") (:attrs . ("text as site")))))
