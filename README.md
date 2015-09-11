@@ -27,7 +27,7 @@ git clone git@github.com:VitoVan/cl-spider.git
 ```
 ![](https://raw.githubusercontent.com/VitoVan/cl-spider/master/screenshots/quickload.png)
 
-## Function
+## Functions
 
 **cl-spider:get-data** uri &key selector attrs
 
@@ -61,3 +61,5 @@ desires --- a list contains sub selectors and their attrs
 ## TODO
 
 * Multiple Selector Support
+* POST method Support
+* Cookie & Session Support
