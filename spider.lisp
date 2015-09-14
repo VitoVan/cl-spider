@@ -1,15 +1,26 @@
 (in-package :cl-spider)
 
-(defun get-html (uri &key (expected-code 200) (method :get) parameters)
+(defun get-html (uri &key (expected-code 200) (method :get) (max-content-length (* 1024 1024 2)) parameters)
   (let* ((response (multiple-value-list
-                    (handler-case (drakma:http-request uri :method method :parameters parameters :connection-timeout 5)
+                    (handler-case (drakma:http-request uri
+                                                       :method method
+                                                       :parameters parameters
+                                                       :connection-timeout 5
+                                                       :want-stream t)
                       (error
                           (condition)
                         (format nil "~A" condition)))))
-         (html (car response))
+         (s (car response))
+         (header (nth 2 response))
+         (content-length
+          (or (parse-integer (write-to-string (drakma:header-value :content-length header)) :junk-allowed t)
+              (progn (push '(:content-length . (write-to-string max-content-length)) header) max-content-length)))         
+         (size-ok (and content-length (<= content-length max-content-length)))
          (code (nth 1 response)))
     (if (and code (= code expected-code))
-        html
+        (if size-ok
+            (car (multiple-value-list (drakma::read-body s header t)))
+            "Too large")
         (or code response))))
 
 (defun get-dom(html)
