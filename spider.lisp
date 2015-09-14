@@ -2,7 +2,7 @@
 
 (defun get-html (uri &key (expected-code 200) (method :get) parameters)
   (let* ((response (multiple-value-list
-                    (handler-case (drakma:http-request uri :method method :parameters parameters)
+                    (handler-case (drakma:http-request uri :method method :parameters parameters :connection-timeout 5)
                       (error
                           (condition)
                         (format nil "~A" condition)))))
