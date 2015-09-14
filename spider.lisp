@@ -13,9 +13,9 @@
          (s (car response))
          (header (nth 2 response))
          (content-length
-          (or (parse-integer (write-to-string (drakma:header-value :content-length header)) :junk-allowed t)
-              (progn (push '(:content-length . (write-to-string max-content-length)) header) max-content-length)))         
-         (size-ok (and content-length (<= content-length max-content-length)))
+          (or (drakma:header-value :content-length header)
+              (progn (push '(:content-length . "2097152") header) "2097152")))
+         (size-ok (and content-length (<= (parse-integer content-length :junk-allowed t) max-content-length)))
          (code (nth 1 response)))
     (if (and code (= code expected-code))
         (if size-ok
