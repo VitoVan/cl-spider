@@ -57,8 +57,8 @@
 
 ;;(cl-spider:get-data "https://news.ycombinator.com/" :selector "a" :attrs '("href" "text"))
 
-(defun get-block-data (uri &key selector desires params)
-  (let* ((parent-html-list (get-data uri :selector selector :params params)))
+(defun get-block-data (uri &key selector desires params html)
+  (let* ((parent-html-list (get-data uri :selector selector :params params :html html)))
     (mapcar
      #'(lambda (parent-html)
          (let* ((result))
