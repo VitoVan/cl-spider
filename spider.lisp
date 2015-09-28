@@ -1,5 +1,7 @@
 (in-package :cl-spider)
 
+(setf drakma:*drakma-default-external-format* :UTF-8)
+
 (defun get-html (uri &key (expected-code 200) (method :get) (max-content-length (* 1024 1024 2)) parameters)
   (let* ((response (multiple-value-list
                     (handler-case (drakma:http-request uri
@@ -32,9 +34,9 @@
 (defun get-text(node)
   (string-trim '(#\Space #\Tab #\Newline) (text node)))
 
-(defun get-data (uri &key selector attrs html)
+(defun get-data (uri &key selector attrs html params)
   (handler-case (if (null selector)
-                    (or html (get-html uri))
+                    (or html (get-html uri :parameters params))
                     (map 'list
                          #'(lambda (node)
                              (if attrs
@@ -48,7 +50,7 @@
                                                            (or (and (cl-ppcre:scan " as " attr) (car (cl-ppcre:split " as " attr))) attr)))) results))
                                    results)
                                  (serialize node nil)))
-                         (get-nodes selector (get-dom (or html (get-html uri))))))
+                         (get-nodes selector (get-dom (or html (get-html uri :parameters params))))))
     (error
         (condition)
       (format nil "~A" condition))))
