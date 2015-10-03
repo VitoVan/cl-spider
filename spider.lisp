@@ -2,12 +2,15 @@
 
 (setf drakma:*drakma-default-external-format* :UTF-8)
 
+(defvar *cl-spider-user-agent* "cl-spider")
+
 (defun get-html (uri &key (expected-code 200) (method :get) (max-content-length (* 1024 1024 2)) parameters)
   (let* ((response (multiple-value-list
                     (handler-case (drakma:http-request uri
                                                        :method method
                                                        :parameters parameters
                                                        :connection-timeout 5
+                                                       :user-agent *cl-spider-user-agent*
                                                        :want-stream t)
                       (error
                           (condition)

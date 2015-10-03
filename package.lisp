@@ -4,4 +4,5 @@
   (:use #:common-lisp #:drakma #:plump #:clss)
   (:export
    #:get-data
-   #:get-block-data))
+   #:get-block-data
+   #:*cl-spider-user-agent*))
