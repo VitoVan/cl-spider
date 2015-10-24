@@ -1,15 +1,19 @@
 (in-package :cl-spider)
-
+;; set default encode system
 (setf drakma:*drakma-default-external-format* :UTF-8)
 
+;; customization
 (defvar *cl-spider-user-agent* "cl-spider")
+(defvar *cl-spider-max-length* (* 1024 1024 2))
+(defvar *cl-spider-timeout-seconds* 5)
 
-(defun get-html (uri &key (expected-code 200) (method :get) (max-content-length (* 1024 1024 2)) parameters)
+(defun get-html (uri &key (expected-code 200) (method :get) parameters)
+  "Get HTML strings from specific uri"
   (let* ((response (multiple-value-list
                     (handler-case (drakma:http-request uri
                                                        :method method
                                                        :parameters parameters
-                                                       :connection-timeout 5
+                                                       :connection-timeout *cl-spider-timeout-seconds*
                                                        :user-agent *cl-spider-user-agent*
                                                        :want-stream t)
                       (error
@@ -19,8 +23,9 @@
          (header (nth 2 response))
          (content-length
           (or (drakma:header-value :content-length header)
-              (progn (push '(:content-length . "2097152") header) "2097152")))
-         (size-ok (and content-length (<= (parse-integer content-length :junk-allowed t) max-content-length)))
+              (progn (push '(:content-length . (write-to-string *cl-spider-max-length*)) header)
+                     (write-to-string *cl-spider-max-length*))))
+         (size-ok (and content-length (<= (parse-integer content-length :junk-allowed t) *cl-spider-max-length*)))
          (code (nth 1 response)))
     (if (and code (= code expected-code))
         (if size-ok
@@ -29,15 +34,18 @@
         (or code response))))
 
 (defun get-dom(html)
+  "Parse HTML strings to DOM"
   (parse html))
 
 (defun get-nodes(selector dom)
+  "Get nodes from DOM, by CSS selector"
   (select selector dom))
 
 (defun get-text(node)
+  "Get the text content in the node"
   (string-trim '(#\Space #\Tab #\Newline) (text node)))
 
-(defun get-data (uri &key selector attrs html params)
+(defun html-select (uri &key selector attrs html params)
   (handler-case (if (null selector)
                     (or html (get-html uri :parameters params))
                     (map 'list
@@ -60,7 +68,7 @@
 
 ;;(cl-spider:get-data "https://news.ycombinator.com/" :selector "a" :attrs '("href" "text"))
 
-(defun get-block-data (uri &key selector desires params html)
+(defun html-block-select (uri &key selector desires params html)
   (let* ((parent-html-list (get-data uri :selector selector :params params :html html)))
     (mapcar
      #'(lambda (parent-html)

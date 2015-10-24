@@ -9,7 +9,8 @@ A Common Lisp Spider for the Web
 
 ```bash
 mkdir -p ~/.config/common-lisp/source-registry.conf.d/
-echo "(:tree (:home \"quicklisp/downloaded-projects/\"))" > ~/.config/common-lisp/source-registry.conf.d/projects.conf
+echo "(:tree (:home \"quicklisp/downloaded-projects/\"))" >> \
+    ~/.config/common-lisp/source-registry.conf.d/projects.conf
 ```
 
 * Download cl-spider:
@@ -29,7 +30,7 @@ git clone https://github.com/VitoVan/cl-spider.git
 
 ## Functions
 
-**cl-spider:get-data** uri &key selector attrs
+**cl-spider:html-select** uri &key selector attrs
 
 uri --- the uri
 selector --- block selector
@@ -37,31 +38,34 @@ attrs --- the attrs of the selector
 
 
 ```Lisp
-(cl-spider:get-data "https://news.ycombinator.com/" :selector "a" :attrs '("href" "text"))
+(cl-spider:html-select "https://news.ycombinator.com/"
+                       :selector "a"
+                       :attrs '("href" "text"))
 ```
 
 ![](https://raw.githubusercontent.com/VitoVan/cl-spider/master/screenshots/get-data.png)
 
-**cl-spider:get-block-data** uri &key selector desires
+**cl-spider:html-block-select** uri &key selector desires
 
 uri --- the uri
 selector --- block selector
 desires --- a list contains sub selectors and their attrs
 
 ```Lisp
-(cl-spider:get-block-data "https://news.ycombinator.com/" 
-                                   :selector "tr.athing" 
-                                   :desires '(((:selector . "span.rank") (:attrs . ("text as rank")))
-                                              ((:selector . "td.title>a") (:attrs . ("href as uri" "text as title")))
-                                              ((:selector . "span.sitebit.comhead") (:attrs . ("text as site")))))
+(cl-spider:html-block-select
+ "https://news.ycombinator.com/" 
+ :selector "tr.athing" 
+ :desires '(((:selector . "span.rank") (:attrs . ("text as rank")))
+            ((:selector . "td.title>a") (:attrs . ("href as uri" "text as title")))
+            ((:selector . "span.sitebit.comhead") (:attrs . ("text as site")))))                                              
 ```
 
 ![](https://raw.githubusercontent.com/VitoVan/cl-spider/master/screenshots/get-block-data.png)
 
 ## TODO
 
-* Multiple Selector Support
 * POST method Support
+* [JSONSelect](http://jsonselect.org/#overview) Support
 * Cookie & Session Support
 
 ## License
