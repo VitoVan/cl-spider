@@ -43,7 +43,7 @@ attrs --- the attrs of the selector
                        :attrs '("href" "text"))
 ```
 
-![](https://raw.githubusercontent.com/VitoVan/cl-spider/master/screenshots/get-data.png)
+![](https://raw.githubusercontent.com/VitoVan/cl-spider/master/screenshots/html-select.png)
 
 **cl-spider:html-block-select** uri &key selector desires
 
@@ -57,10 +57,10 @@ desires --- a list contains sub selectors and their attrs
  :selector "tr.athing" 
  :desires '(((:selector . "span.rank") (:attrs . ("text as rank")))
             ((:selector . "td.title>a") (:attrs . ("href as uri" "text as title")))
-            ((:selector . "span.sitebit.comhead") (:attrs . ("text as site")))))                                              
+            ((:selector . "span.sitebit.comhead") (:attrs . ("text as site")))))
 ```
 
-![](https://raw.githubusercontent.com/VitoVan/cl-spider/master/screenshots/get-block-data.png)
+![](https://raw.githubusercontent.com/VitoVan/cl-spider/master/screenshots/html-block-select.png)
 
 ## TODO
 

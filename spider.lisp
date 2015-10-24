@@ -66,7 +66,9 @@
         (condition)
       (format nil "~A" condition))))
 
-;;(cl-spider:get-data "https://news.ycombinator.com/" :selector "a" :attrs '("href" "text"))
+;;(cl-spider:html-select "https://news.ycombinator.com/"
+;;                       :selector "a"
+;;                       :attrs '("href" "text"))
 
 (defun html-block-select (uri &key selector desires params html)
   (let* ((parent-html-list (get-data uri :selector selector :params params :html html)))
@@ -83,8 +85,9 @@
            result))
      parent-html-list)))
 
-;;(cl-spider:get-block-data "https://news.ycombinator.com/" 
-;;                                   :selector "tr.athing" 
-;;                                   :desires '(((:selector . "span.rank") (:attrs . ("text as rank")))
-;;                                              ((:selector . "td.title>a") (:attrs . ("href as uri" "text as title")))
-;;                                              ((:selector . "span.sitebit.comhead") (:attrs . ("text as site")))))
+;;(cl-spider:html-block-select
+;; "https://news.ycombinator.com/" 
+;; :selector "tr.athing" 
+;; :desires '(((:selector . "span.rank") (:attrs . ("text as rank")))
+;;            ((:selector . "td.title>a") (:attrs . ("href as uri" "text as title")))
+;;            ((:selector . "span.sitebit.comhead") (:attrs . ("text as site")))))
