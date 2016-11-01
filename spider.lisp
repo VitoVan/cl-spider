@@ -45,9 +45,9 @@
   "Get the text content in the node"
   (string-trim '(#\Space #\Tab #\Newline) (text node)))
 
-(defun html-select (uri &key selector attrs html params)
+(defun html-select (uri &key (method :get) selector attrs html params)
   (handler-case (if (null selector)
-                    (or html (get-html uri :parameters params))
+                    (or html (get-html uri :method method :parameters params))
                     (map 'list
                          #'(lambda (node)
                              (if attrs
@@ -70,8 +70,8 @@
 ;;                       :selector "a"
 ;;                       :attrs '("href" "text"))
 
-(defun html-block-select (uri &key selector desires params html)
-  (let* ((parent-html-list (get-data uri :selector selector :params params :html html)))
+(defun html-block-select (uri &key (method :get) selector desires params html)
+  (let* ((parent-html-list (get-data uri :method method :selector selector :params params :html html)))
     (mapcar
      #'(lambda (parent-html)
          (let* ((result))
