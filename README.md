@@ -1,6 +1,10 @@
 # cl-spider
 A Common Lisp Spider for the Web
 
+> 🚨 **WARNING** 🚨
+
+> **DON'T use this shit before you read the code, it's very badly wriiten and incomplete.**
+
 ## Installlation
 
 * Install [Quicklisp](http://quicklisp.org/), if you haven't.
