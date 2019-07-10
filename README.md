@@ -2,7 +2,6 @@
 A Common Lisp Spider for the Web
 
 > 🚨 **WARNING** 🚨
-
 > **DON'T use this shit before you read the code, it's very badly wriiten and incomplete.**
 
 ## Installlation
@@ -21,14 +20,17 @@ git clone https://github.com/VitoVan/cl-spider.git
 ```Lisp
 (ql:quickload 'cl-spider)
 ```
-![](https://raw.githubusercontent.com/VitoVan/cl-spider/master/screenshots/quickload.png)
+
+  ![](https://raw.githubusercontent.com/VitoVan/cl-spider/master/screenshots/quickload.png)
 
 ## Functions
 
 **cl-spider:html-select** uri &key selector attrs
 
 uri --- the uri
+
 selector --- block selector
+
 attrs --- the attrs of the selector
 
 
@@ -38,12 +40,14 @@ attrs --- the attrs of the selector
                        :attrs '("href" "text"))
 ```
 
-![](https://raw.githubusercontent.com/VitoVan/cl-spider/master/screenshots/html-select.png)
+  ![](https://raw.githubusercontent.com/VitoVan/cl-spider/master/screenshots/html-select.png)
 
 **cl-spider:html-block-select** uri &key selector desires
 
 uri --- the uri
+
 selector --- block selector
+
 desires --- a list contains sub selectors and their attrs
 
 ```Lisp
