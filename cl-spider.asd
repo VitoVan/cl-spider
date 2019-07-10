@@ -9,5 +9,6 @@
   :author "Vito Van"
   :serial t
   :components ((:file "package")
-               (:file "spider"))
+               (:file "spider")
+               (:file "html-select"))
   :depends-on (:drakma :plump :clss))
