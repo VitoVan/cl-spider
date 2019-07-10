@@ -2,7 +2,7 @@
 A Common Lisp Spider for the Web
 
 > 🚨 **WARNING** 🚨
-> **DON'T use this shit before you read the code, it's very badly wriiten and incomplete.**
+> **DON'T use this shit before you read the code, it's very badly written and incomplete.**
 
 ## Installlation
 
