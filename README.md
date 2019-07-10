@@ -9,19 +9,10 @@ A Common Lisp Spider for the Web
 
 * Install [Quicklisp](http://quicklisp.org/), if you haven't.
 
-* Configure ASDF:
-
-```bash
-mkdir -p ~/.config/common-lisp/source-registry.conf.d/
-echo "(:tree (:home \"quicklisp/downloaded-projects/\"))" >> \
-    ~/.config/common-lisp/source-registry.conf.d/projects.conf
-```
-
 * Download cl-spider:
 
 ```bash
-mkdir -p ~/quicklisp/downloaded-projects
-cd ~/quicklisp/downloaded-projects
+cd ~/quicklisp/local-projects
 git clone https://github.com/VitoVan/cl-spider.git
 ```
 
