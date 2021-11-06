@@ -1,3 +1,11 @@
+# NOTICE
+
+As you can see, the internet today is going towards a direction with only JavaScript and JSON API. Besides, more and more website started to develop an technology to identify the visitors and prevent web spiders to access their resource. Something beyond the technology world have also changed, such as law enforcement about web crawling and the decaying of Internet Freedom.
+
+This project failed to achieve its target before all those changes happened. Thus, I'm archiving this repository and hope it still have some value for anyone who is interested in.
+
+So Long, and Thanks for All the Fish.
+
 # cl-spider
 A Common Lisp Spider for the Web
 
